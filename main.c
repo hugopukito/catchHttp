@@ -166,9 +166,19 @@ void filterHttp() {
 
 void callback(u_char * user, const struct pcap_pkthdr * h, const u_char * buff) {
 
-    struct ip *iph;
-    iph = (struct ip *) buff;
+    struct iphdr *ip = (struct iphdr*)(buff + 14);
+    struct in_addr addr;
+    addr.s_addr = ip->daddr;
+    char *dest_ip = inet_ntoa(addr);
 
-    printf("Taille du paquet HTTP : %d \n", h->len);
-    printf("Adresse IP: %d \n", iph->ip_dst);
+    printf("Taille du paquet HTTP : %d \n", h->len-16);
+    printf("Adresse IP: %s \n \n", dest_ip);
+
+    if (h->len-16 > 200) {
+        // Starting at index 66 to avoid non interesting chars
+        for (int i=66; i<h->len; i++) {
+            printf("%c", buff[i]);
+        }
+        printf("\n");
+    }
 }
